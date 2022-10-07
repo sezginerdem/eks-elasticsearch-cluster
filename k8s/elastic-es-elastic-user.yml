@@ -1,0 +1,15 @@
+apiVersion: v1
+data:
+  elastic: bzUxMDVTVDlONDR2ZWpHMUFENG45VFBIZGVm
+kind: Secret
+metadata:
+  labels:
+    common.k8s.elastic.co/type: elasticsearch
+    eck.k8s.elastic.co/credentials: "true"
+    eck.k8s.elastic.co/owner-kind: Elasticsearch
+    eck.k8s.elastic.co/owner-name: elastic
+    eck.k8s.elastic.co/owner-namespace: elastic
+    elasticsearch.k8s.elastic.co/cluster-name: elastic
+  name: elastic-es-elastic-user
+  namespace: elastic
+type: Opaque

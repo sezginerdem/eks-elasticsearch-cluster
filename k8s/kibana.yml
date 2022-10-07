@@ -1,0 +1,31 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: kibana
+  namespace: elastic
+spec:
+  version: 8.3.2
+  count: 1
+  podTemplate:
+    spec:
+      containers:
+      - name: kibana
+        resources:
+          requests:
+            memory: 1Gi
+            cpu: 500m
+          limits:
+            memory: 2Gi
+            cpu: 500m
+  elasticsearchRef:
+    name: elastic
+  http:
+    service:
+      metadata:
+        labels:
+          name: kibana-svc-nodeport
+      spec:
+        type: NodePort
+    tls:
+      selfSignedCertificate:
+        disabled: true

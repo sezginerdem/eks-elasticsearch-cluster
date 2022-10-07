@@ -1,0 +1,87 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elastic
+  namespace: elastic
+  annotations:
+    elasticsearch.alpha.elastic.co/autoscaling-spec: |
+      {
+          "pollingPeriod": "10s",
+          "policies": [{
+            "name": "data",
+            "roles": [ "data" ],
+            "deciders": {
+                "reactive_storage": {
+                    "forecast_window": "5m"
+                }
+              },
+            "resources": {
+                "nodeCount": { "min": 3, "max": 6 },
+                "cpu": { "min": 2, "max": 3 },
+                "memory": { "min": "4Gi", "max": "12Gi" },
+                "storage": { "min": "50Gi", "max": "1000Gi" }
+            }
+          }]
+      }
+spec:
+  version: 8.3.2
+  volumeClaimDeletePolicy: DeleteOnScaledownOnly
+  http:
+    service:
+      metadata:
+        labels:
+          name: elastic-svc-nodeport
+      spec:
+        type: NodePort
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  nodeSets:
+  - name: master
+    count: 1
+    config:
+      node:
+        roles: [ "master" ]
+        store.allow_mmap: false
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+            memory: 2Gi
+            cpu: 2
+          limits:
+            memory: 12Gi
+            cpu: 3
+        storageClassName: ebs-sc
+  - name: data
+    config:
+      node:
+        roles: [ "data" ]
+        store.allow_mmap: false
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 2
+            limits:
+              memory: 12Gi
+              cpu: 3
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        storageClassName: ebs-sc

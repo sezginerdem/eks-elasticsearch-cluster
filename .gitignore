@@ -1,0 +1,7 @@
+<<<<<<< HEAD
+.terraform
+.terraform.lock.hcl
+=======
+.terraform.lock.hcl
+.terraform
+>>>>>>> 8a42feaff9375ec92d238b3f471fa884f7fb6e75
